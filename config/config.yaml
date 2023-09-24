@@ -1,5 +1,5 @@
 NameNode:
-  # NameNode IP address
+  # NameNode host IP address
   NameNodeHost: 127.0.0.1
   # NameNode port
   NameNodePort: :8001

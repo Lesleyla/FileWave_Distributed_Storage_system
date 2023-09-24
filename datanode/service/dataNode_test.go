@@ -89,7 +89,7 @@ func createTempFile(name string, content string) {
 		log.Fatal("cannot write file: ", err1)
 	}
 }
-
+// delete temp file error
 func deleteTempFile(name string) {
 	err := os.Remove(name)
 	if err != nil {
