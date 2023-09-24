@@ -1,0 +1,145 @@
+syntax = "proto3";
+
+option go_package = "../service";
+
+package proto;
+
+service C2N {
+  rpc GetFileLocationAndModifyMeta (FileNameAndMode) returns (FileLocationArr);
+  rpc CreateFile (FileNameAndMode) returns (FileLocationArr);
+  rpc OperateMeta (FileNameAndOperateMode) returns (OperateStatus);
+  rpc RenameFileInMeta (SrcAndDestPath) returns (OperateStatus);
+  rpc GetFileMeta (PathName) returns (FileMeta);
+  rpc GetDirMeta (PathName) returns (DirMetaList);
+  rpc PutSuccess (MetaStore) returns (OperateStatus);
+  rpc RenewLock(GetLease) returns (OperateStatus);
+}
+
+service C2D {
+  rpc GetBlock (FileNameAndMode) returns (stream File){};
+  rpc WriteBlock (stream FileWriteStream) returns (OperateStatus){};
+}
+
+service N2D {
+  rpc GetBlockReport (Ping) returns (BlockReplicaList);
+  rpc ReloadReplica (CopyReplica2DN) returns (OperateStatus);
+}
+
+service D2N {
+  rpc DatanodeHeartbeat(Heartbeat) returns (DatanodeOperation);
+  rpc BlockReport (BlockReplicaList) returns (OperateStatus);
+  rpc RegisterDataNode (RegisterDataNodeReq) returns (OperateStatus);
+}
+
+message FileWriteStream {
+  File file = 1;
+  BlockReplicaList BlockReplicaList = 2;
+}
+
+message File {
+  bytes content = 1;
+}
+
+message FileNameAndMode {
+  enum Mode {
+    READ = 0;
+    WRITE = 1;
+  }
+  string fileName = 1;
+  Mode mode = 2;
+  int64 blockNum = 3;
+}
+
+message FileNameAndOperateMode {
+  enum OperateMetaMode {
+    DELETE = 0;
+    MKDIR = 1;
+  }
+  string fileName = 1;
+  OperateMetaMode mode = 2;
+}
+
+message SrcAndDestPath {
+  string renameSrcPath = 1;
+  string renameDestPath = 2;
+}
+
+
+message PathName {
+  string pathName = 1;
+}
+
+message FileLocationArr {
+  repeated BlockReplicaList FileBlocksList = 1;
+}
+
+message BlockReplicaList {
+  repeated BlockLocation BlockReplicaList = 1;
+}
+
+message BlockLocation {
+  enum ReplicaMetaState {
+    ReplicaPending = 0;
+    ReplicaCommitted = 1;
+  }
+  string ipAddr = 1;
+  string blockName = 2;
+  int64 blockSize = 3;
+  int64 replicaID = 4;
+  ReplicaMetaState replicaState = 5;
+}
+
+message OperateStatus {
+  bool success = 1;
+}
+
+message FileMeta {
+  string fileName = 1;
+  string fileSize = 2;
+  bool isDir = 3;
+}
+
+message DirMetaList {
+  repeated FileMeta metaList = 1;
+}
+
+message Ping {
+  string ping = 1;
+}
+
+message Heartbeat {
+  string ipAddr = 1;
+  uint64 DiskUsage = 2;
+}
+
+message RegisterDataNodeReq {
+  bool new = 1;
+  uint64 DiskUsage = 2;
+  string ipAddr = 3;
+}
+
+message DatanodeOperation {
+  enum Operation {
+    DELETE = 0;
+    REPLICATE = 1;
+  }
+  Operation operation = 1;
+  string ipAddr = 2;
+}
+
+message MetaStore{
+  FileLocationArr fileLocationArr = 1;
+  string filePath = 2;
+  uint64 fileSize = 3;
+  string clientName = 4;
+}
+
+message GetLease{
+  PathName pathname = 1;
+  string clientName = 2;
+}
+
+message CopyReplica2DN{
+  string blockName = 1;
+  string newIP = 2;
+}

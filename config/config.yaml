@@ -1,0 +1,21 @@
+NameNode:
+  # NameNode IP address
+  NameNodeHost: 127.0.0.1
+  # NameNode port
+  NameNodePort: :8001
+  # heartMonitor
+  HeartbeatTimeout: 10
+
+DataNode:
+  HeartbeatInterval: 3
+  BlockReportInterval: 3600000
+  IoSize: 100
+
+
+Block:
+  BlockSize: 128
+  Replica: 3
+
+Lease:
+  LeaseSoftLimit: 60000
+  LeaseHardLimit: 3600000
